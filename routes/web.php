@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Profile\ProfileController;
+use App\Http\Controllers\ContactUsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +15,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+require __DIR__.'/auth.php';
+
 Route::get('/', function () {
-    return view('welcome');
+    return view('index');
+});
+
+Route::post('/contact_us', [ContactUsController::class, 'store'])->name('contact_us');
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth'])->name('dashboard');
+
+//Route::prefix('admin')->name('admin.')->group(function () {
+//    Route::get('/', [ProfileController::class, 'index'])->name('index');
+//});
+
+Route::prefix('profile')->name('profile.')->group(function () {
+    Route::get('/', [ProfileController::class, 'index'])->name('index');
 });
