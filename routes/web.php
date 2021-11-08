@@ -31,6 +31,7 @@ Route::get('/dashboard', function () {
 //    Route::get('/', [ProfileController::class, 'index'])->name('index');
 //});
 
-Route::prefix('profile')->name('profile.')->group(function () {
+Route::prefix('profile')->middleware(['auth'])->name('profile.')->group(function () {
     Route::get('/', [ProfileController::class, 'index'])->name('index');
+    Route::put('/', [ProfileController::class, 'update'])->name('index.put');
 });
