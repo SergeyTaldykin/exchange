@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Profile;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UserProfileRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -15,23 +17,40 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(Request $request)
+    public function update(UserProfileRequest $request)
     {
-        var_dump(true);
-        exit();
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-        ]);
+        $validated = $request->validated();
 
-        var_dump($validated);
-        exit();
         foreach ($validated as $key => $value) {
             Auth::user()->$key = $value;
         }
 
         Auth::user()->save();
 
-        return $this->index();
+        return response()->json(['message' => 'ok']);
+    }
+
+    public function changeAvatar(Request $request)
+    {
+        if ($request->hasFile('avatar')) {
+            if ($request->file('avatar')->isValid()) {
+                $validated = $request->validate([
+                    'image' => 'mimes:jpeg,png|max:2048|dimensions:min_width=100,min_height=200',
+                ]);
+
+                $extension = $request->avatar->extension();
+
+                $name = sha1(Auth::user()->id . uniqid());
+
+                $request->avatar->storeAs(
+                    '/public/images/avatars/' . substr($name, 0, 4), $name . '.' . $extension
+                );
+
+//                $url = Storage::url($name.".".$extension);
+
+                return back();
+            }
+        }
+        abort(500, 'Could not upload image :(');
     }
 }

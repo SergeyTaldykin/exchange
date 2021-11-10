@@ -20,7 +20,11 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex flex-column align-items-center text-center">
-                            <img src="https://bootdey.com/img/Content/avatar/avatar6.png" alt="Admin" class="rounded-circle p-1 bg-primary" width="110">
+                            <form action="{{ route('profile.avatar') }}" method="post" enctype="multipart/form-data">
+                                @csrf
+                                <input class="d-none" name="avatar" id="input-avatar" type="file" accept="image/png, image/jpeg">
+                            </form>
+                            <img id="avatar" src="https://bootdey.com/img/Content/avatar/avatar6.png" alt="Admin" class="rounded-circle p-1 bg-primary" width="110">
                             <div class="mt-3">
                                 <h4>{{ $user->name }}</h4>
                                 <p class="text-secondary mb-1">Full Stack Developer</p>
@@ -58,15 +62,17 @@
             <div class="col-lg-8">
                 <div class="card">
                     <div class="card-body">
-                        <form>
-                            @method('put')
+                        <form id="profile" action="{{ route('profile.update') }}" method="post">
+                            @method('PUT')
                             @csrf
+                            <div class="alert alert-success d-none"><ul></ul></div>
+                            <div class="alert alert-danger d-none"><ul></ul></div>
                             <div class="row mb-3">
                                 <div class="col-sm-3">
                                     <h6 class="mb-0">Full Name</h6>
                                 </div>
                                 <div class="col-sm-9 text-secondary">
-                                    <input id="name" type="text" class="form-control" value="{{ $user->name }}">
+                                    <input id="name" name="name" class="form-control" value="{{ $user->name }}">
                                 </div>
                             </div>
 
@@ -75,7 +81,7 @@
                                     <h6 class="mb-0">Email</h6>
                                 </div>
                                 <div class="col-sm-9 text-secondary">
-                                    <input type="text" class="form-control" value="{{ $user->email }}">
+                                    <input name="email" class="form-control" value="{{ $user->email }}">
                                 </div>
                             </div>
 
@@ -172,9 +178,57 @@
 </style>
 
 <script>
-    // $(function() {
-    //     alert($('#name').val());
-    // });
+    $(function() {
+        $('#avatar').click(function() {
+            $('#input-avatar').click();
+        });
+
+        $('#input-avatar').change(function() {
+           $(this).closest('form').submit();
+        });
+
+        $('#profile').submit(function($e) {
+            $e.preventDefault();
+
+            let $form = $(this);
+            console.log($form.attr('action'), $form.serialize());
+
+            $.ajax({
+                data: $form.serialize(),
+                dataType: "json",
+                "method": "PUT",
+                url: $form.attr('action'),
+                beforeSend: function() {
+                    $form.find('input').prop('disabled', true);
+                },
+                complete: function() {
+                    setTimeout(function() {
+                        $form.find('input').prop('disabled', false);
+                    }, 650)
+                },
+                resetAlert: function() {
+                    $form.find('.alert').each(function() {
+                        $(this).addClass('d-none');
+                        $(this).find('ul').html('');
+                    })
+                },
+                error: function(data) {
+                    this.resetAlert()
+                    if (data.status === 422) {
+                        let $alert = $form.find('.alert-danger');
+                        $alert.removeClass('d-none');
+
+                        $.each(data.responseJSON.errors, function(key, value) {
+                            $alert.find('ul').append($('<li>').text(value));
+                        });
+                    }
+                },
+                success: function(data) {
+                    // TODO homework
+                }
+            });
+        });
+    });
 </script>
 </body>
 </html>

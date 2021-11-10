@@ -33,5 +33,19 @@ Route::get('/dashboard', function () {
 
 Route::prefix('profile')->middleware(['auth'])->name('profile.')->group(function () {
     Route::get('/', [ProfileController::class, 'index'])->name('index');
-    Route::put('/', [ProfileController::class, 'update'])->name('index.put');
+    Route::put('/', [ProfileController::class, 'update'])->name('update');
+
+    Route::post('/avatar', [ProfileController::class, 'changeAvatar'])->name('avatar');
 });
+
+/**
+ * TODO 1) Change profile photo
+ *    1. Добавить input file на форму
+ *    2. Роут и контроллер
+ *    3. Валидация
+ *    4. Правильно сохранить файл
+ * TODO 2) Exchange - buy/sell, по одной паре минимум
+ * TODO 3) Admin - agg data
+ */
+
+
