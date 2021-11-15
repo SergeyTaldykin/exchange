@@ -13,7 +13,8 @@ class ProfileController extends Controller
     public function index()
     {
         return view('profile.index', [
-            'user' => Auth::user(),
+            'user' => $user = Auth::user(),
+            'profilePhoto' => $user->getAvatarPath() ?: 'https://bootdey.com/img/Content/avatar/avatar6.png'
         ]);
     }
 
@@ -40,17 +41,17 @@ class ProfileController extends Controller
 
                 $extension = $request->avatar->extension();
 
-                $name = sha1(Auth::user()->id . uniqid());
+                $name = sha1(Auth::user()->id . uniqid()) . '.' . $extension;
 
-                $request->avatar->storeAs(
-                    '/public/images/avatars/' . substr($name, 0, 4), $name . '.' . $extension
-                );
+                $request->avatar->storeAs('/public/images/avatars/' . substr($name, 0, 4), $name);
 
-//                $url = Storage::url($name.".".$extension);
+                Auth::user()->avatar = $name;
+                Auth::user()->save();
 
                 return back();
             }
         }
+
         abort(500, 'Could not upload image :(');
     }
 }
