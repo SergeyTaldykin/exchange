@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Profile\BalanceController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\ContactUsController;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,9 @@ Route::prefix('profile')->middleware(['auth'])->name('profile.')->group(function
     Route::put('/', [ProfileController::class, 'update'])->name('update');
 
     Route::post('/avatar', [ProfileController::class, 'changeAvatar'])->name('avatar');
+
+    Route::get('/balance', [BalanceController::class, 'index'])->name('balance.index');
+    Route::post('/balance', [BalanceController::class, 'addBalance'])->name('balance.add');
 });
 
 
