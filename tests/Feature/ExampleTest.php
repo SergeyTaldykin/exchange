@@ -18,4 +18,27 @@ class ExampleTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    /**
+     * A basic test example.
+     *
+     * @dataProvider textExampleProvider
+     * @return void
+     */
+    public function test_example2($a, $b)
+    {
+        $this->assertTrue($a == $b);
+    }
+
+    /**
+     *
+     */
+    public function textExampleProvider()
+    {
+        return [
+            [1, 2],
+            [2, 2.0],
+            [0, ''],
+        ];
+    }
 }

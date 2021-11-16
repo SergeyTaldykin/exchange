@@ -1,8 +1,10 @@
 <?php
 
-use App\Http\Controllers\Profile\BalanceController;
-use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\ContactUsController;
+use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\Profile\BalanceController;
+use App\Http\Controllers\Profile\ExchangeController;
+use App\Http\Controllers\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,6 +34,8 @@ Route::get('/dashboard', function () {
 //    Route::get('/', [ProfileController::class, 'index'])->name('index');
 //});
 
+Route::get('/lang/{lang}', [LanguageController::class, 'switchLang'])->name('lang.switch');
+
 Route::prefix('profile')->middleware(['auth'])->name('profile.')->group(function () {
     Route::get('/', [ProfileController::class, 'index'])->name('index');
     Route::put('/', [ProfileController::class, 'update'])->name('update');
@@ -40,6 +44,11 @@ Route::prefix('profile')->middleware(['auth'])->name('profile.')->group(function
 
     Route::get('/balance', [BalanceController::class, 'index'])->name('balance.index');
     Route::post('/balance', [BalanceController::class, 'addBalance'])->name('balance.add');
+
+    Route::prefix('exchange')->name('exchange.')->group(function () {
+        Route::get('/', [ExchangeController::class, 'index'])->name('index');
+        Route::post('/order', [ExchangeController::class, 'addOrder'])->name('addOrder');
+    });
 });
 
 

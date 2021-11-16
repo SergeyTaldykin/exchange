@@ -21,6 +21,7 @@ class CreateBalancesTable extends Migration
 
             $table->foreign('asset_id')->references('id')->on('assets');
             $table->foreign('user_id')->references('id')->on('users');
+
             $table->timestamps();
         });
     }
