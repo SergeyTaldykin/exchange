@@ -24,6 +24,12 @@ namespace App;
  */
 class Exchange
 {
+    public const OPERATION_TYPE_BUY = 1;
+    public const OPERATION_TYPE_SELL = 2;
+
+    public const ORDER_TYPE_LIMIT = 1;
+    public const ORDER_TYPE_MARKET = 2;
+
 //    Я хочу купить 2 битка лимитным ордером по 62к
 //
 //    61 200 - кто-то продает 3 (-1)

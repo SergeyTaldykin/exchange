@@ -16,10 +16,19 @@ class AssetSeeder extends Seeder
     {
         DB::table('assets')->insert([
             [
+                'name' => 'EUR',
+            ],
+            [
                 'name' => 'USD',
             ],
             [
                 'name' => 'BTC',
+            ],
+            [
+                'name' => 'ETH',
+            ],
+            [
+                'name' => 'MSFT',
             ],
             [
                 'name' => 'TSLA',

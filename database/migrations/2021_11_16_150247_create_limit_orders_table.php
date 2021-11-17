@@ -19,13 +19,15 @@ class CreateLimitOrdersTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('pair_id');
+            $table->unsignedTinyInteger('operation_type');
+
             $table->decimal('qty',20, 8);
             $table->decimal('qty_left',20, 8);
             $table->decimal('price',20, 8);
 
             $table->unsignedTinyInteger('status');
 
-            $table->timestamps();
+            $table->timestamps(3);
 
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('pair_id')->references('id')->on('pairs');

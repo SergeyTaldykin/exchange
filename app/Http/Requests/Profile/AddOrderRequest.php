@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Profile;
 
+use App\Exchange;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class AddOrderRequest extends FormRequest
 {
@@ -14,8 +16,11 @@ class AddOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            'asset_id' => ['required', 'exists:assets,id'],
-            'volume' => ['required', 'numeric', 'min:0.01', 'max:1000'],
+            'operation_type' => ['required', Rule::in([Exchange::OPERATION_TYPE_BUY, Exchange::OPERATION_TYPE_SELL])],
+            'order_type' => ['required', Rule::in([Exchange::ORDER_TYPE_LIMIT, Exchange::ORDER_TYPE_MARKET])],
+            'pair_id' => ['required', 'exists:pairs,id'],
+            'price' => ['required', 'numeric'],
+            'qty' => ['required', 'numeric'],
         ];
     }
 }

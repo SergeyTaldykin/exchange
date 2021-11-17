@@ -9,6 +9,8 @@ class FilledOrder extends Model
 {
     use HasFactory;
 
+    protected $dateFormat = 'Y-m-d H:i:s.u';
+
 //    public function user()
 //    {
 //        return $this->belongsTo(User::class);

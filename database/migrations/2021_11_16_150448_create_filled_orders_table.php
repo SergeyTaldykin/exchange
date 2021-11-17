@@ -21,10 +21,11 @@ class CreateFilledOrdersTable extends Migration
             $table->unsignedBigInteger('pair_id');
             $table->unsignedBigInteger('limit_order_id');
             $table->unsignedBigInteger('operation_id');
+            $table->unsignedTinyInteger('operation_type');
 
             $table->decimal('qty',20, 8);
 
-            $table->timestamps();
+            $table->timestamps(3);
 
             $table->foreign('limit_order_id')->references('id')->on('limit_orders');
             $table->foreign('operation_id')->references('id')->on('operations');

@@ -47,7 +47,7 @@ Route::prefix('profile')->middleware(['auth'])->name('profile.')->group(function
 
     Route::prefix('exchange')->name('exchange.')->group(function () {
         Route::get('/', [ExchangeController::class, 'index'])->name('index');
-        Route::post('/order', [ExchangeController::class, 'addOrder'])->name('addOrder');
+        Route::post('/order', [ExchangeController::class, 'addOrder'])->name('order');
     });
 });
 
