@@ -2,11 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Models\LimitOrder;
-use App\Models\Operation;
+use App\Models\Balance;
+use App\Models\FilledOrder;
+use App\Models\Order;
 use App\Models\Pair;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class PairTrading extends Command
 {
@@ -43,18 +44,75 @@ class PairTrading extends Command
         // TODO
         // TODO  Начисление баланса
         while (true) {
-            $limitOrders = LimitOrder::getByPair($pair);
-            $marketOrders = Operation::getByPair($pair);
+            $orders = Order::getByPair($pair);
 
-            $ordersLists = $this->ordersMerge($limitOrders, $marketOrders);
+            $limitOrders = [[], []];
 
-            foreach ($ordersLists as $orders) {
-                foreach ($orders as $order) {
-                    if ($order instanceof LimitOrder) {
-                        echo "LIMIT \n";
+            foreach ($orders as $order) {
+                try {
+                    DB::beginTransaction();
+
+                    if ($order->isLimit()) {
+                        if ($order->isBuy()) {
+                            echo "LIMIT BUY $order->id\n";
+
+                            $limitOrders[0][] = $order;
+                            //                        foreach ($limitOrders[1] as $sellOrder) {
+                            //                            if ($sell) {
+                            //
+                            //                            }
+                            //                        }
+                        } else {
+                            echo "LIMIT SELL $order->id\n";
+
+                            $limitOrders[1][] = $order;
+                        }
                     } else {
-                        echo get_class($order) . " MARKET \n";
+
+                        if ($order->isBuy()) {
+                            echo get_class($order) . " MARKET BUY $order->id\n";
+
+                            foreach ($limitOrders[1] as $sellOrder) {
+                                $orderQty = $order->qty - $order->qty_filled;
+                                $sellOrderQty = $sellOrder->qty - $sellOrder->qty_filled;
+
+                                if ($sellOrderQty >= $orderQty) {
+                                    $order->qty_filled = $order->qty;
+                                    $order->status = Order::STATUS_DONE;
+                                    $order->save();
+
+                                    $sellOrder->qty_filled += $orderQty;
+                                    if ($sellOrderQty === $orderQty) {
+                                        $sellOrder->status = Order::STATUS_DONE;
+                                    }
+                                    $sellOrder->save();
+
+                                    FilledOrder::createByMakerAndTaker($sellOrder, $order, $orderQty);
+                                    Balance::updateForMakerAndTaker($sellOrder, $order, $orderQty);
+                                    break;
+                                } else {
+                                    $order->qty_filled += $sellOrderQty;
+                                    $order->save();
+
+                                    $sellOrder->qty_filled = $sellOrder->qty;
+                                    $sellOrder->status = Order::STATUS_DONE;
+                                    $sellOrder->save();
+
+                                    FilledOrder::createByMakerAndTaker($sellOrder, $order, $sellOrderQty);
+                                    Balance::updateForMakerAndTaker($sellOrder, $order, $orderQty);
+                                }
+                            }
+                        } else {
+                            echo get_class($order) . " MARKET SELL $order->id\n";
+
+                        }
+
                     }
+
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    throw $e;
                 }
             }
 
@@ -63,22 +121,5 @@ class PairTrading extends Command
         }
 
         return Command::SUCCESS;
-    }
-
-    private function ordersMerge(Collection $collection1, Collection $collection2): array
-    {
-        $result = [];
-
-        foreach ($collection1 as $item) {
-            $result[$item->created_at->getTimestampMs()][] = $item;
-        }
-
-        foreach ($collection2 as $item) {
-            $result[$item->created_at->getTimestampMs()][] = $item;
-        }
-
-        ksort($result);
-
-        return $result;
     }
 }

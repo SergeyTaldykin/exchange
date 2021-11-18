@@ -15,14 +15,15 @@ class CreateLimitOrdersTable extends Migration
     {
         // todo (id, user_id, pair_id, qty, qty_left, price, status, created_at, updated_at)
 
-        Schema::create('limit_orders', function (Blueprint $table) {
+        Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('pair_id');
             $table->unsignedTinyInteger('operation_type');
+            $table->unsignedTinyInteger('order_type');
 
             $table->decimal('qty',20, 8);
-            $table->decimal('qty_left',20, 8);
+            $table->decimal('qty_filled',20, 8)->default(0);
             $table->decimal('price',20, 8);
 
             $table->unsignedTinyInteger('status');

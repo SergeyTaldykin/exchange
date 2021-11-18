@@ -40,7 +40,21 @@
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-body">
-                        <h1>X</h1>
+                        <h3>@lang('profile.Trades')</h3>
+                        <table class="table">
+                            @foreach ($filledOrders as $filledOrder)
+                                <tr class="{{ $filledOrder->isBuy() ? 'table-success' : 'table-danger' }}">
+                                    <td>{{ $filledOrder->qty }}</td>
+                                    <td>{{ $filledOrder->makerOrder->price }}</td>
+                                    @if ($filledOrder->isBuy())
+                                        <td>BUY</td>
+                                    @else
+                                        <td>SELL</td>
+                                    @endif
+                                    <td>{{ $filledOrder->created_at }}</td>
+                                </tr>
+                            @endforeach
+                        </table>
                     </div>
                 </div>
             </div>
@@ -48,7 +62,42 @@
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-body">
-                        <h1>Y</h1>
+                        <h3>@lang('profile.Order Book')</h3>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Цена</th>
+                                    <th>Количество</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($sellLimitOrders as $price => $qty)
+                                    <tr>
+                                        <td>{{ $price }}</td>
+                                        <td>{{ $qty }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                        <hr class="hr">
+
+                        <table class="table table-sm">
+                            <thead>
+                            <tr>
+                                <th>Цена</th>
+                                <th>Количество</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ($buyLimitOrders as $price => $qty)
+                                <tr>
+                                    <td>{{ $price }}</td>
+                                    <td>{{ $qty }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -58,7 +107,6 @@
                     <div class="card-body">
                         <form action="{{ route('profile.exchange.order') }}" method="post">
                             @csrf
-                            <?php var_dump($errors->any());?>
                             @if ($errors->any())
                                 <div class="alert alert-danger">
                                     <ul>

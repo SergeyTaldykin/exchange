@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Exchange;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,13 +12,23 @@ class FilledOrder extends Model
 
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
-//    public function user()
-//    {
-//        return $this->belongsTo(User::class);
-//    }
-//
-//    public function asset()
-//    {
-//        return $this->belongsTo(Asset::class);
-//    }
+    public function makerOrder()
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+    public function isBuy(): bool
+    {
+        return $this->makerOrder->operation_type === Exchange::OPERATION_TYPE_SELL;
+    }
+
+    public static function createByMakerAndTaker(Order $makerOrder, Order $takerOrder, float $qty): void
+    {
+        $filledOrder = new self;
+        $filledOrder->pair_id = $makerOrder->pair_id;
+        $filledOrder->maker_order_id = $makerOrder->id;
+        $filledOrder->taker_order_id = $takerOrder->id;
+        $filledOrder->qty = $qty;
+        $filledOrder->save();
+    }
 }
