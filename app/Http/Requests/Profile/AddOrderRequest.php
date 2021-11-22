@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Profile;
 
 use App\Exchange;
+use App\Models\Order;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -17,7 +18,7 @@ class AddOrderRequest extends FormRequest
     {
         return [
             'operation_type' => ['required', Rule::in([Exchange::OPERATION_TYPE_BUY, Exchange::OPERATION_TYPE_SELL])],
-            'order_type' => ['required', Rule::in([Exchange::ORDER_TYPE_LIMIT, Exchange::ORDER_TYPE_MARKET])],
+            'order_type' => ['required', Rule::in([Order::TYPE_LIMIT, Order::TYPE_MARKET])],
             'pair_id' => ['required', 'exists:pairs,id'],
             'price' => ['required', 'numeric'],
             'qty' => ['required', 'numeric'],

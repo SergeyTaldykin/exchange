@@ -42,6 +42,14 @@
                     <div class="card-body">
                         <h3>@lang('profile.Trades')</h3>
                         <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Количество</th>
+                                <th>Цена</th>
+                                <th>Тип</th>
+                                <th>Время</th>
+                            </tr>
+                            </thead>
                             @foreach ($filledOrders as $filledOrder)
                                 <tr class="{{ $filledOrder->isBuy() ? 'table-success' : 'table-danger' }}">
                                     <td>{{ $filledOrder->qty }}</td>
@@ -117,7 +125,7 @@
                                 </div>
                             @endif
 
-                            <input type="hidden" name="pair_id" value="1">
+                            <input type="hidden" name="pair_id" value="{{ $pair->id }}">
                             <div class="form-group">
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" name="operation_type" id="inlineRadio1" value="{{ \App\Exchange::OPERATION_TYPE_BUY }}" checked>
@@ -131,11 +139,11 @@
 
                             <div class="form-group">
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="order_type" id="inlineRadio1" value="{{ \App\Exchange::ORDER_TYPE_LIMIT }}" checked>
+                                    <input class="form-check-input" type="radio" name="order_type" id="inlineRadio1" value="{{ \App\Models\Order::TYPE_LIMIT }}" checked>
                                     <label class="form-check-label" for="inlineRadio1">@lang('profile.LIMIT')</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="order_type" id="inlineRadio2" value="{{ \App\Exchange::ORDER_TYPE_MARKET }}">
+                                    <input class="form-check-input" type="radio" name="order_type" id="inlineRadio2" value="{{ \App\Models\Order::TYPE_MARKET }}">
                                     <label class="form-check-label" for="inlineRadio2">@lang('profile.MARKET')</label>
                                 </div>
                             </div>

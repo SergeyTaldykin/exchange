@@ -15,33 +15,41 @@ class Order extends Model
     public const STATUS_DONE = 2;
     public const STATUS_CANCELLED = 3;
 
+    public const TYPE_LIMIT = 1;
+    public const TYPE_MARKET = 2;
+
     protected $dateFormat = 'Y-m-d H:i:s.u';
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
-//    public function user()
-//    {
-//        return $this->belongsTo(User::class);
-//    }
-//
-//    public function asset()
-//    {
-//        return $this->belongsTo(Asset::class);
-//    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function pair()
+    {
+        return $this->belongsTo(Pair::class);
+    }
 
     public function isBuy(): bool
     {
         return $this->operation_type === Exchange::OPERATION_TYPE_BUY;
     }
 
+    public function isDone(): bool
+    {
+        return $this->status === Order::STATUS_DONE;
+    }
+
     public function isLimit(): bool
     {
-        return $this->order_type === Exchange::ORDER_TYPE_LIMIT;
+        return $this->order_type === self::TYPE_LIMIT;
     }
 
     public function isMarket(): bool
     {
-        return $this->order_type === Exchange::ORDER_TYPE_MARKET;
+        return $this->order_type === self::TYPE_MARKET;
     }
 
     /**
@@ -54,6 +62,7 @@ class Order extends Model
         return self::query()
             ->where('pair_id', $pair->id)
             ->where('status', $status)
+            ->orderBy('id')
             ->get();
     }
 
@@ -65,7 +74,7 @@ class Order extends Model
             ->where('pair_id', $pair->id)
             ->where('status', self::STATUS_PENDING)
             ->where('operation_type', $operationType)
-            ->where('order_type', Exchange::ORDER_TYPE_LIMIT)
+            ->where('order_type', self::TYPE_LIMIT)
             ->groupBy('price')
             ->orderBy('price', 'DESC')
             ->limit($limit)

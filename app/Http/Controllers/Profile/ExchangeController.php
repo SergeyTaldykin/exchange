@@ -31,6 +31,7 @@ class ExchangeController extends Controller
             'balances' => Balance::where('user_id', $user->id)->with('asset')->get(),
             'buyLimitOrders' => Order::getOrderBook($pair, Exchange::OPERATION_TYPE_BUY, 10),
             'filledOrders' => $filledOrders,
+            'pair' => $pair,
             'sellLimitOrders' => Order::getOrderBook($pair, Exchange::OPERATION_TYPE_SELL, 10),
             'user' => $user,
         ]);

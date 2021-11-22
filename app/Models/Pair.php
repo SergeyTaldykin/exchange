@@ -14,12 +14,12 @@ class Pair extends Model
 {
     use HasFactory;
 
-    public function leftAssetId()
+    public function leftAsset()
     {
         return $this->hasOne(Asset::class, 'id', 'left_asset_id');
     }
 
-    public function rightAssetId()
+    public function rightAsset()
     {
         return $this->hasOne(Asset::class, 'id', 'right_asset_id');
     }
