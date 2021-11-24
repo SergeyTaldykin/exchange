@@ -23,4 +23,9 @@ class Pair extends Model
     {
         return $this->hasOne(Asset::class, 'id', 'right_asset_id');
     }
+
+    public function getName(): string
+    {
+        return $this->leftAsset->name . $this->rightAsset->name;
+    }
 }

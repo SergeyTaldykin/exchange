@@ -24,12 +24,7 @@ class BalanceController extends Controller
     {
         $validated = $request->validated();
 
-        if (!$balance = Auth::user()->balances()->where('asset_id', $validated['asset_id'])->first()) {
-            $balance = new Balance();
-            $balance->asset_id = $validated['asset_id'];
-            $balance->volume = 0.0;
-            $balance->user()->associate(Auth::user());
-        }
+        $balance = Balance::getByUserAndAsset(Auth::user(), Asset::find($validated['asset_id']));
 
         $balance->volume += $validated['volume'];
 

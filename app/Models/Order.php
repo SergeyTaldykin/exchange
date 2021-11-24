@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property User $user
+ */
 class Order extends Model
 {
     use HasFactory;

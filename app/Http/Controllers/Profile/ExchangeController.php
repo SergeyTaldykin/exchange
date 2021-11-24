@@ -28,7 +28,9 @@ class ExchangeController extends Controller
             ->get();
 
         return view('profile.exchange.index', [
-            'balances' => Balance::where('user_id', $user->id)->with('asset')->get(),
+            // todo
+//            'balanceLeft' => Balance::getByUserAndAsset($user, $pair->leftAsset)->getFreeVolume(),
+//            'balanceRight' => Balance::getByUserAndAsset($user, $pair->rightAsset)->getFreeVolume(),
             'buyLimitOrders' => Order::getOrderBook($pair, Exchange::OPERATION_TYPE_BUY, 10),
             'filledOrders' => $filledOrders,
             'pair' => $pair,
@@ -48,5 +50,12 @@ class ExchangeController extends Controller
         ]);
 
         return back()->with('message', 'Баланс добавлен!');
+    }
+
+    public function getPairsList()
+    {
+        return view('profile.exchange.pairs_list', [
+            'pairsList' => Pair::all(),
+        ]);
     }
 }

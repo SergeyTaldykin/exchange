@@ -40,6 +40,7 @@
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-body">
+                        <h3 class="float-right">{{ $pair->getName() }}</h3>
                         <h3>@lang('profile.Trades')</h3>
                         <table class="table">
                             <thead>
@@ -113,7 +114,7 @@
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('profile.exchange.order') }}" method="post">
+                        <form action="{{ route('profile.exchange.order', [$pair]) }}" method="post">
                             @csrf
                             @if ($errors->any())
                                 <div class="alert alert-danger">

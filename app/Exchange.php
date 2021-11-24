@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\DB;
  */
 class Exchange
 {
+    public const OPERATION_COMMISSION = 0.01;
+
     public const OPERATION_TYPE_BUY = 1;
     public const OPERATION_TYPE_SELL = 2;
 
@@ -28,6 +30,7 @@ class Exchange
         try {
             DB::beginTransaction();
 
+            // todo check user free balance
             if ($order->isLimit()) {
                 $this->executeLimitOrder($order);
             } else {
@@ -137,7 +140,7 @@ class Exchange
             $orderB->save();
 
             FilledOrder::createByMakerAndTaker($orderB, $orderA, $orderBQty);
-            Balance::updateForMakerAndTaker($orderB, $orderA, $orderAQty);
+            Balance::updateForMakerAndTaker($orderB, $orderA, $orderBQty);
         }
     }
 

@@ -46,9 +46,9 @@ Route::prefix('profile')->middleware(['auth'])->name('profile.')->group(function
     Route::post('/balance', [BalanceController::class, 'addBalance'])->name('balance.add');
 
     Route::prefix('exchange')->name('exchange.')->group(function () {
-        // todo
-        Route::get('/{pair?}', [ExchangeController::class, 'index'])->name('index');
-        Route::post('/order/{pair?}', [ExchangeController::class, 'addOrder'])->name('order');
+        Route::get('/list', [ExchangeController::class, 'getPairsList'])->name('pairsList');
+        Route::get('/{pair}', [ExchangeController::class, 'index'])->name('index');
+        Route::post('/order/{pair}', [ExchangeController::class, 'addOrder'])->name('order');
     });
 });
 
