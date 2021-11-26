@@ -35,8 +35,6 @@ class PairTrading extends Command
          */
         $pair = Pair::find((int)$this->argument('pair_id'));
 
-        // TODO  Начисление баланса
-
         $exchange = new Exchange();
 
         while (true) {

@@ -69,6 +69,16 @@ class Order extends Model
             ->get();
     }
 
+    public static function getByPairAndUser(Pair $pair, User $user, int $status = self::STATUS_PENDING): Collection
+    {
+        return self::query()
+            ->where('pair_id', $pair->id)
+            ->where('user_id', $user->id)
+            ->where('status', $status)
+            ->orderBy('id')
+            ->get();
+    }
+
     public static function getOrderBook(Pair $pair, int $operationType, int $limit): \Illuminate\Support\Collection
     {
         return self::query()

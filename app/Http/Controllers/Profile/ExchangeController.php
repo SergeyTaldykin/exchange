@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ExchangeController extends Controller
 {
-    public function index(?Pair $pair)
+    public function index(Pair $pair)
     {
         if (empty($pair->id)) {
             $pair = Pair::query()->first();
@@ -28,14 +28,14 @@ class ExchangeController extends Controller
             ->get();
 
         return view('profile.exchange.index', [
-            // todo
-//            'balanceLeft' => Balance::getByUserAndAsset($user, $pair->leftAsset)->getFreeVolume(),
-//            'balanceRight' => Balance::getByUserAndAsset($user, $pair->rightAsset)->getFreeVolume(),
+            'qtyLeft' => Balance::format(Balance::getByUserAndAsset($user, $pair->leftAsset)->getFreeVolume()),
+            'qtyRight' => Balance::format(Balance::getByUserAndAsset($user, $pair->rightAsset)->getFreeVolume()),
             'buyLimitOrders' => Order::getOrderBook($pair, Exchange::OPERATION_TYPE_BUY, 10),
             'filledOrders' => $filledOrders,
             'pair' => $pair,
             'sellLimitOrders' => Order::getOrderBook($pair, Exchange::OPERATION_TYPE_SELL, 10),
             'user' => $user,
+            'usersOrders' => Order::getByPairAndUser($pair, $user),
         ]);
     }
 

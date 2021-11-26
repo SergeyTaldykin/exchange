@@ -13,8 +13,6 @@ class CreateLimitOrdersTable extends Migration
      */
     public function up()
     {
-        // todo (id, user_id, pair_id, qty, qty_left, price, status, created_at, updated_at)
-
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');

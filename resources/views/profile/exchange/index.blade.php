@@ -114,7 +114,7 @@
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('profile.exchange.order', [$pair]) }}" method="post">
+                        <form action="{{ route('profile.exchange.order', [$pair]) }}" method="post" id="order-form">
                             @csrf
                             @if ($errors->any())
                                 <div class="alert alert-danger">
@@ -129,32 +129,34 @@
                             <input type="hidden" name="pair_id" value="{{ $pair->id }}">
                             <div class="form-group">
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="operation_type" id="inlineRadio1" value="{{ \App\Exchange::OPERATION_TYPE_BUY }}" checked>
-                                    <label class="form-check-label" for="inlineRadio1">@lang('profile.BUY')</label>
+                                    <input class="form-check-input operation_type" type="radio" name="operation_type" id="operation_type1" value="{{ \App\Exchange::OPERATION_TYPE_BUY }}" checked>
+                                    <label class="form-check-label" for="operation_type1">@lang('profile.BUY')</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="operation_type" id="inlineRadio2" value="{{ \App\Exchange::OPERATION_TYPE_SELL }}">
-                                    <label class="form-check-label" for="inlineRadio2">@lang('profile.SELL')</label>
+                                    <input class="form-check-input operation_type" type="radio" name="operation_type" id="operation_type2" value="{{ \App\Exchange::OPERATION_TYPE_SELL }}">
+                                    <label class="form-check-label" for="operation_type2">@lang('profile.SELL')</label>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="order_type" id="inlineRadio1" value="{{ \App\Models\Order::TYPE_LIMIT }}" checked>
-                                    <label class="form-check-label" for="inlineRadio1">@lang('profile.LIMIT')</label>
+                                    <input class="form-check-input order_type" type="radio" name="order_type" id="order_type1" value="{{ \App\Models\Order::TYPE_LIMIT }}" checked>
+                                    <label class="form-check-label" for="order_type1">@lang('profile.LIMIT')</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="order_type" id="inlineRadio2" value="{{ \App\Models\Order::TYPE_MARKET }}">
-                                    <label class="form-check-label" for="inlineRadio2">@lang('profile.MARKET')</label>
+                                    <input class="form-check-input order_type" type="radio" name="order_type" id="order_type2" value="{{ \App\Models\Order::TYPE_MARKET }}">
+                                    <label class="form-check-label" for="order_type2">@lang('profile.MARKET')</label>
                                 </div>
                             </div>
 
+                            <div>Доступно: <span id="available-qty">{{ $qtyRight }}</span></div>
+
                             <div class="form-group">
-                                <input name="price" placeholder="@lang('profile.Price')" class="form-control">
+                                <input name="price" id="price" placeholder="@lang('profile.Price')" class="form-control">
                             </div>
 
                             <div class="form-group">
-                                <input name="qty" placeholder="@lang('profile.Qty')" class="form-control">
+                                <input name="qty" id="qty" placeholder="@lang('profile.Qty')" class="form-control">
                             </div>
 
                             <div class="form-group">
@@ -166,6 +168,113 @@
             </div>
         </div>
     </div>
+
+    <div style="position: absolute; bottom: 0; width: 98%" class="orders">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table table-responsive" style="height: 229px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    margin-bottom: 0;">
+                            <thead>
+                                <tr>
+                                    <th>Время</th>
+                                    <th>Тип</th>
+                                    <th>Цена</th>
+                                    <th>Количество</th>
+                                    <th>Заполнено</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($usersOrders as $order)
+                                    <tr class="{{ $order->isBuy() ? 'table-success' : 'table-danger' }}">
+                                        <td>{{ $order->created_at->format('H:i:s d-m-Y') }}</td>
+                                        <td>{{ $order->isBuy() ? 'BUY' : 'SELL' }}</td>
+                                        <td>{{ $order->price }}</td>
+                                        <td>{{ $order->qty }}</td>
+                                        <td>{{ \App\Models\Balance::format((float)$order->filled) }}</td>
+                                        <td><a href="#">Cancel</a></td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    $(function() {
+        class OrderForm {
+            constructor($form, qtyLeft, qtyRight, operationTypeBuyId, operationTypeSellId) {
+                this.context = this
+                this.$form = $form;
+                this.qtyLeft = qtyLeft;
+                this.qtyRight = qtyRight;
+
+                this.currentOperationType = this.operationTypeBuyId = operationTypeBuyId;
+                this.operationTypeSellId = operationTypeSellId;
+
+                this.$availableQty = $('#available-qty')
+
+                this.$price = $form.find('#price');
+                this.$qty = $form.find('#qty');
+
+                this.$operationType = this.$form.find('.operation_type').change($.proxy(this.changeOperationType, this));
+                this.$form.submit($.proxy(this.validate, this))
+            }
+
+            changeOperationType() {
+                this.currentOperationType = parseInt(this.$operationType.filter(":checked").val())
+                this.updateDisplayedQty()
+            }
+
+            getOrderPrice() {
+                return this.$price.val();
+            }
+
+            getOrderQty() {
+                return this.$qty.val();
+            }
+
+            getOperationVolume() {
+                if (this.currentOperationType === this.operationTypeBuyId) {
+                    return this.getOrderPrice() * this.getOrderQty();
+                }
+
+                return this.getOrderQty();
+            }
+
+            getQtyByOperationType(operationType) {
+                return operationType === this.operationTypeBuyId ? this.qtyRight : this.qtyLeft;
+            }
+
+            updateDisplayedQty() {
+                return this.$availableQty.text(this.getQtyByOperationType(this.currentOperationType));
+            }
+
+            validate($e) {
+                if (this.getOperationVolume() > this.getQtyByOperationType(this.currentOperationType)) {
+                    $e.preventDefault();
+                    return;
+                }
+
+            }
+        }
+
+        let orderForm = new OrderForm(
+            $('#order-form'),
+            '{{ $qtyLeft }}',
+            '{{ $qtyRight }}',
+            {!! \App\Exchange::OPERATION_TYPE_BUY !!},
+            {!! \App\Exchange::OPERATION_TYPE_SELL !!}
+        );
+    });
+</script>
 </body>
 </html>

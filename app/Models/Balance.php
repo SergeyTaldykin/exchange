@@ -58,9 +58,19 @@ class Balance extends Model
 
     public function getFreeVolume(): float
     {
-        dd(
-            Order::query()
-                ->selectRaw('SUM(qty - qty_filled) AS realQty')
+        $volumeInSells = Order::query() // todo move to Balance class
+                ->selectRaw('SUM((qty - qty_filled)) AS realQty')
+                ->where('user_id', $this->user->id)
+                ->whereIn('pair_id', function($query) {
+                    $query->select('id')
+                        ->from(with(new Pair)->getTable())
+                        ->where('left_asset_id', $this->asset->id);
+                })
+                ->where('status', Order::STATUS_PENDING)
+                ->where('operation_type', Exchange::OPERATION_TYPE_SELL)->first()->realQty ?? 0.0;
+
+        $volumeInBuys = Order::query()
+                ->selectRaw('SUM((qty - qty_filled) * price) AS realQty')
                 ->where('user_id', $this->user->id)
                 ->whereIn('pair_id', function($query) {
                     $query->select('id')
@@ -68,18 +78,13 @@ class Balance extends Model
                         ->where('right_asset_id', $this->asset->id);
                 })
                 ->where('status', Order::STATUS_PENDING)
-                ->where('operation_type', Exchange::OPERATION_TYPE_BUY)->first()
-        );
+                ->where('operation_type', Exchange::OPERATION_TYPE_BUY)->first()->realQty ?? 0.0;
 
-//        return $this->volume - Order::query()
-//                ->whereIn('pair_id', function($query) {
-//                    $query->select('id')
-//                        ->from(with(new Pair)->getTable())
-//                        ->where('right_asset_id', $this->asset->id)
-//
-//                })
-//                ->where('status', Order::STATUS_PENDING)
-//                ->where('operation_type', Exchange::OPERATION_TYPE_BUY)
-//                ->get();
+        return $this->volume - $volumeInBuys - $volumeInSells;
+    }
+
+    public static function format(float $value): string
+    {
+        return sprintf('%.8f', $value);
     }
 }

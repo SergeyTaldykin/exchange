@@ -53,13 +53,7 @@ class Exchange
     protected function executeLimitOrder(Order $limitOrder): void
     {
         if ($limitOrder->isBuy()) {
-            // TODO Первый случай
             echo "LIMIT BUY $limitOrder->id\n";
-
-            // todo пока цена выше лимит_оредер_селл, то поступаем как с маркет ордером
-            // todo, если хватило qty - done
-            // todo, если не хватило qty - записываем в массив limitOrders
-            // todo
 
             foreach ($this->limitOrdersSell as $limitSell) {
                 if ($limitSell->price <= $limitOrder->price) {
@@ -78,7 +72,6 @@ class Exchange
                 $this->sortOrdersBuy();
             }
         } else {
-            // TODO Второй случай
             echo "LIMIT SELL $limitOrder->id\n";
 
             foreach ($this->limitOrdersBuy as $limitBuy) {
