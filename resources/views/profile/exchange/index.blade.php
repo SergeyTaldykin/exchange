@@ -169,38 +169,55 @@
         </div>
     </div>
 
-    <div style="position: absolute; bottom: 0; width: 98%" class="orders">
+    <div style="height: 280px;"></div>
+
+    <div style="position: fixed; bottom: 0; width: 98%" class="orders">
         <div class="row">
             <div class="col-lg-12">
-                <div class="card">
+                <div class="card" style="margin-bottom: 0.6rem">
                     <div class="card-body">
-                        <table class="table table-responsive" style="height: 229px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    margin-bottom: 0;">
-                            <thead>
-                                <tr>
-                                    <th>Время</th>
-                                    <th>Тип</th>
-                                    <th>Цена</th>
-                                    <th>Количество</th>
-                                    <th>Заполнено</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($usersOrders as $order)
-                                    <tr class="{{ $order->isBuy() ? 'table-success' : 'table-danger' }}">
-                                        <td>{{ $order->created_at->format('H:i:s d-m-Y') }}</td>
-                                        <td>{{ $order->isBuy() ? 'BUY' : 'SELL' }}</td>
-                                        <td>{{ $order->price }}</td>
-                                        <td>{{ $order->qty }}</td>
-                                        <td>{{ \App\Models\Balance::format((float)$order->filled) }}</td>
-                                        <td><a href="#">Cancel</a></td>
+                        <form method="post" action="{{ route('profile.exchange.cancelOrder') }}">
+                            @csrf
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                            <table class="table table-responsive" style="height: 230px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        margin-bottom: 0;">
+                                <thead>
+                                    <tr>
+                                        <th>Время</th>
+                                        <th>Тип</th>
+                                        <th>Цена</th>
+                                        <th>Осталось</th>
+                                        <th>Заполнено</th>
+                                        <th></th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+
+                                        @foreach ($usersOrders as $order)
+                                            <tr class="{{ $order->isBuy() ? 'table-success' : 'table-danger' }}">
+                                                <td>{{ $order->created_at->format('H:i:s d-m-Y') }}</td>
+                                                <td>{{ $order->isBuy() ? 'BUY' : 'SELL' }}</td>
+                                                <td>{{ $order->price }}</td>
+                                                <td>{{ \App\Models\Balance::format($order->qty - (float)$order->qty_filled) }}</td>
+                                                <td>{{ \App\Models\Balance::format((float)$order->qty_filled) }}</td>
+
+                                                <td><button class="btn btn-link btn-danger">Market</button></td>
+                                                <td><button type="submit" name="order_id" value="{{ $order->id }}" class="btn btn-link btn-warning">Cancel</button></td>
+                                            </tr>
+                                        @endforeach
+                                </tbody>
+                            </table>
+                        </form>
                     </div>
                 </div>
             </div>

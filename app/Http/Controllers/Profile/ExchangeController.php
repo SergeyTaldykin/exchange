@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Profile;
 use App\Exchange;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Profile\AddOrderRequest;
+use App\Http\Requests\Profile\CancelOrderRequest;
 use App\Models\Balance;
 use App\Models\FilledOrder;
 use App\Models\Order;
@@ -50,6 +51,20 @@ class ExchangeController extends Controller
         ]);
 
         return back()->with('message', 'Баланс добавлен!');
+    }
+
+    public function cancelOrder(CancelOrderRequest $request)
+    {
+        $request->validated();
+
+        // TODO DB locks.
+
+        $order = $request->getOrder();
+
+        $order->status = Order::STATUS_CANCELLED;
+        $order->save();
+
+        return back()->with('message', 'Ордер отменен!');
     }
 
     public function getPairsList()

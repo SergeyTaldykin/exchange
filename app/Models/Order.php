@@ -6,13 +6,14 @@ use App\Exchange;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\Access\Authorizable;
 
 /**
  * @property User $user
  */
 class Order extends Model
 {
-    use HasFactory;
+    use Authorizable, HasFactory;
 
     public const STATUS_PENDING = 1;
     public const STATUS_DONE = 2;
